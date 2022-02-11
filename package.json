@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node index.ts",
+    "encode:hashlink": "ts-node encode.ts",
     "start:browser": "rollup -c config/rollup.config.js -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

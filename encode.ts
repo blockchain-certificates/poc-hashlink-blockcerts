@@ -11,10 +11,10 @@ function configureHashlink (): typeof Hashlink {
 }
 
 (async function () {
-  const testValue = 'hl:zQmWvQxTqbG2Z9HPJgG57jjwR154cKhbtJenbyYTWkjgF3e:zuh8iaLobXC8g9tfma1CSTtYBakXeSTkHrYA5hmD4F7dCLw8XYwZ1GWyJ3zwF';
   const hl: typeof Hashlink = configureHashlink();
 
   const url = 'https://www.blockcerts.org/assets/img/pictures/blockcerts.svg';
+  console.log('Creating a hashlink from data located at', url);
   let imageData;
   await fetch(url, {
     method: 'GET',
