@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "hashlink": "^0.12.1"
+    "hashlink": "^0.12.1",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "ts-node": "^10.5.0",
