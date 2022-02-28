@@ -1,5 +1,7 @@
-import { Hashlink } from 'hashlink';
+import {Hashlink} from 'hashlink';
 import * as codecs from '../../node_modules/hashlink/codecs';
+import {logTimeNow, registerStartTime} from './time';
+import {LogEvents} from '../../bindingContext/events';
 
 interface HashlinkModel {
   hashName: string;
@@ -18,22 +20,14 @@ function configureHashlink (): typeof Hashlink {
   return hl;
 }
 
-function toSecond (value: number): string {
-  return value / 1000 + 's';
-}
-
-const startTime = Date.now();
-console.log('DOM loaded at', startTime);
-
-function logTimeNow (label: string, index: number) {
-  const time = Date.now();
-  console.log(label, index, 'at', time, 'delta', toSecond(time - startTime));
-}
-
-function fullyRenderedImage (index: number) {
+function fullyRenderedImage (index: number, hashlink: string) {
   function rendered() {
     //Render complete
-    logTimeNow('fully rendered', index);
+    logTimeNow({
+      event: LogEvents.RENDERED,
+      imageIndex: index,
+      imageHashlink: hashlink
+    });
   }
 
   function startRender() {
@@ -54,9 +48,13 @@ function init () {
   console.log('found hashlink elements', hashlinkElements);
 
   async function verifyAndDisplay(hashlinkElement: HTMLImageElement, index: number) {
-    hashlinkElement.onload = fullyRenderedImage.bind(null, index);
     const hashlink = hashlinkElement.src;
-    logTimeNow('start processing image', index);
+    hashlinkElement.onload = fullyRenderedImage.bind(null, index, hashlink);
+    logTimeNow({
+      event: LogEvents.START,
+      imageIndex: index,
+      imageHashlink: hashlink
+    });
 
     const decodedHashlink = await hl.decode({ hashlink });
     if (!decodedHashlink.meta && !decodedHashlink.meta.url?.length) {
@@ -78,15 +76,26 @@ function init () {
     if (!verified) {
       throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
     }
-    logTimeNow('verified image', index);
+    logTimeNow({
+      event: LogEvents.VERIFIED,
+      imageIndex: index,
+      imageHashlink: hashlink,
+      imageUrl: sourceUrl
+    });
 
     console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
 
     hashlinkElement.src = sourceUrl;
-    logTimeNow('updated image url', index);
+    logTimeNow({
+      event: LogEvents.UPDATED,
+      imageIndex: index,
+      imageHashlink: hashlink,
+      imageUrl: sourceUrl
+    });
   }
 
   hashlinkElements.forEach((hashlinkElement, i) => verifyAndDisplay(hashlinkElement, i));
 }
 
+registerStartTime();
 init();

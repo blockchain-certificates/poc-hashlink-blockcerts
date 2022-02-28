@@ -1,14 +1,17 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
+import {loggingPath, port} from "../bindingContext/endpoint";
 
 const server = express();
 server.use(bodyParser.json({limit: '1mb'}));
+server.use(cors());
 
-server.post('/log', async (req, res) => {
+server.post(loggingPath, async (req, res) => {
   console.log(req.body);
+  res.send('ok');
 });
 
-const port = 3333;
 server.listen(port, () => {
   console.log(`Server listening at ${port}`);
 });

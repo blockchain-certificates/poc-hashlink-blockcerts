@@ -9827,6 +9827,56 @@
     hlDefault.use(new MultihashBlake2b64());
     hlDefault.use(new MultibaseBase58btc());
 
+    function createHeaders() {
+        const headers = new Headers();
+        headers.append('Accept', 'application/json');
+        return headers;
+    }
+    function setHeaders() {
+        const headers = createHeaders();
+        headers.append('Content-Type', 'application/json');
+        return headers;
+    }
+
+    const loggingPath = '/log';
+    const port = 3333;
+
+    const loggingServer = `http://localhost:${port}`;
+    const loggingEndpoint = `${loggingServer}${loggingPath}`;
+    function logToServer(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('logging to server', data.event, data.imageIndex);
+            yield fetch(loggingEndpoint, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: setHeaders()
+            });
+        });
+    }
+
+    function toSecond(value) {
+        return value / 1000 + 's';
+    }
+    let startTime;
+    function registerStartTime() {
+        startTime = Date.now();
+        console.log('DOM loaded at', startTime);
+    }
+    function logTimeNow(data) {
+        const time = Date.now();
+        const timeFromStart = toSecond(time - startTime);
+        console.log(data.event, data.imageIndex, 'at', time, 'delta', timeFromStart);
+        logToServer(Object.assign(Object.assign({}, data), { timeFromStart }));
+    }
+
+    var LogEvents;
+    (function (LogEvents) {
+        LogEvents["START"] = "start";
+        LogEvents["VERIFIED"] = "verified";
+        LogEvents["UPDATED"] = "updated";
+        LogEvents["RENDERED"] = "rendered";
+    })(LogEvents || (LogEvents = {}));
+
     function configureHashlink() {
         const hl = new Hashlink();
         hl.use(new MultihashSha2256());
@@ -9834,19 +9884,14 @@
         hl.use(new MultibaseBase58btc());
         return hl;
     }
-    function toSecond(value) {
-        return value / 1000 + 's';
-    }
-    const startTime = Date.now();
-    console.log('DOM loaded at', startTime);
-    function logTimeNow(label, index) {
-        const time = Date.now();
-        console.log(label, index, 'at', time, 'delta', toSecond(time - startTime));
-    }
-    function fullyRenderedImage(index) {
+    function fullyRenderedImage(index, hashlink) {
         function rendered() {
             //Render complete
-            logTimeNow('fully rendered', index);
+            logTimeNow({
+                event: LogEvents.RENDERED,
+                imageIndex: index,
+                imageHashlink: hashlink
+            });
         }
         function startRender() {
             //Rendering start
@@ -9864,9 +9909,13 @@
         function verifyAndDisplay(hashlinkElement, index) {
             var _a;
             return __awaiter(this, void 0, void 0, function* () {
-                hashlinkElement.onload = fullyRenderedImage.bind(null, index);
                 const hashlink = hashlinkElement.src;
-                logTimeNow('start processing image', index);
+                hashlinkElement.onload = fullyRenderedImage.bind(null, index, hashlink);
+                logTimeNow({
+                    event: LogEvents.START,
+                    imageIndex: index,
+                    imageHashlink: hashlink
+                });
                 const decodedHashlink = yield hl.decode({ hashlink });
                 if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
                     throw new Error('unparseable image, no url provided as meta data');
@@ -9884,14 +9933,25 @@
                 if (!verified) {
                     throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
                 }
-                logTimeNow('verified image', index);
+                logTimeNow({
+                    event: LogEvents.VERIFIED,
+                    imageIndex: index,
+                    imageHashlink: hashlink,
+                    imageUrl: sourceUrl
+                });
                 console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
                 hashlinkElement.src = sourceUrl;
-                logTimeNow('updated image url', index);
+                logTimeNow({
+                    event: LogEvents.UPDATED,
+                    imageIndex: index,
+                    imageHashlink: hashlink,
+                    imageUrl: sourceUrl
+                });
             });
         }
         hashlinkElements.forEach((hashlinkElement, i) => verifyAndDisplay(hashlinkElement, i));
     }
+    registerStartTime();
     init();
 
 })();
