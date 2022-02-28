@@ -8,7 +8,6 @@ export enum LogEvents {
 export interface LogEventTimeObject {
   imageIndex?: number;
   imageHashlink?: string;
-  imageUrl?: string;
   event?: LogEvents;
   timeFromStart?: string;
 }

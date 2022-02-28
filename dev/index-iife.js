@@ -9936,16 +9936,14 @@
                 logTimeNow({
                     event: LogEvents.VERIFIED,
                     imageIndex: index,
-                    imageHashlink: hashlink,
-                    imageUrl: sourceUrl
+                    imageHashlink: hashlink
                 });
                 console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
                 hashlinkElement.src = sourceUrl;
                 logTimeNow({
                     event: LogEvents.UPDATED,
                     imageIndex: index,
-                    imageHashlink: hashlink,
-                    imageUrl: sourceUrl
+                    imageHashlink: hashlink
                 });
             });
         }
