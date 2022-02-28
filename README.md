@@ -2,18 +2,18 @@
 evaluate using hashlinks into blockcerts
 
 TODO:
-- try with binary image (png, jpg...)
-- check load time (use bandwidth throttling too)
-- try other option
+- [x] try with binary image (png, jpg...)
+- [ ] check load time (use bandwidth throttling too)
+- [ ] try other option
   `https://[host]/[path]/[to]/[assets]/[encoding]/[hashing]/[hashed-file-name].[extension]`
   The idea of that second option is to test if user experience is improved by rendering the image first and verifying its integrity second.
-- side by side comparison of the 2 solutions performance
-  - rendering time
-  - verification time
-  - tampered images  
-- issue a blockcerts referencing hashlinks
-- parse `display` property to find hashlinks
-- update images in DOM
+- [ ] side by side comparison of the 2 solutions performance
+  - [ ] rendering time
+  - [ ] verification time
+  - [ ] tampered images  
+- [ ] issue a blockcerts referencing hashlinks
+- [ ] parse `display` property to find hashlinks
+- [ ] update images in DOM
 
 
 NOTE:

@@ -9834,37 +9834,36 @@
         hl.use(new MultibaseBase58btc());
         return hl;
     }
-    const hashlinkElement = document.querySelector('.js-hashlink');
     function init() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('init');
-            const hl = configureHashlink();
-            const hashlink = hashlinkElement.src;
-            const decodedHashlink = yield hl.decode({ hashlink });
-            if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
-                throw new Error('unparseable image, no url provided as meta data');
-            }
-            const sourceUrl = decodedHashlink.meta.url[0];
-            let imageData;
-            yield fetch(sourceUrl)
-                .then(response => response.text())
-                .then(data => imageData = data);
-            const textEncoder = new TextEncoder();
-            const verified = yield hl.verify({
-                data: textEncoder.encode(imageData),
-                hashlink
+        const hl = configureHashlink();
+        const hashlinkElements = document.querySelectorAll('.js-hashlink');
+        console.log('found hashlink elements', hashlinkElements);
+        function verifyAndDisplay(hashlinkElement) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function* () {
+                const hashlink = hashlinkElement.src;
+                const decodedHashlink = yield hl.decode({ hashlink });
+                if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
+                    throw new Error('unparseable image, no url provided as meta data');
+                }
+                const sourceUrl = decodedHashlink.meta.url[0];
+                let imageData;
+                yield fetch(sourceUrl)
+                    .then(response => response.text())
+                    .then(data => imageData = data);
+                const textEncoder = new TextEncoder();
+                const verified = yield hl.verify({
+                    data: textEncoder.encode(imageData),
+                    hashlink
+                });
+                if (!verified) {
+                    throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
+                }
+                console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
+                hashlinkElement.src = sourceUrl;
             });
-            if (!verified) {
-                throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
-            }
-            console.log('hashlink was successfully verified');
-            if (!decodedHashlink.meta['content-type']) {
-                throw new Error('content-type meta property was not specified, unable to rebuild the image');
-            }
-            const base64Data = btoa(imageData);
-            hashlinkElement.src = `data:${decodedHashlink.meta['content-type']};base64,${base64Data}`;
-        });
+        }
+        hashlinkElements.forEach(hashlinkElement => verifyAndDisplay(hashlinkElement));
     }
     init();
 

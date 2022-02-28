@@ -16,10 +16,15 @@ function configureHashlink (): typeof Hashlink {
   const hl: typeof Hashlink = configureHashlink();
 
   const url = getArg('url');
-  const type = getArg('type');
+  let type = getArg('type');
   if (!url || !type) {
     throw new Error('arguments url and type must be specified');
   }
+
+  if (type === 'svg') {
+    type = 'svg+xml';
+  }
+
   console.log('Creating a hashlink from data located at', url);
   let imageData;
   await fetch(url, {
@@ -34,7 +39,7 @@ function configureHashlink (): typeof Hashlink {
     urls: [url],
     meta: {
       url,
-      'content-type': 'image/svg+xml'
+      'content-type': `image/${type}`
     }
   });
 
