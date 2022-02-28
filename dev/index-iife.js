@@ -9834,14 +9834,39 @@
         hl.use(new MultibaseBase58btc());
         return hl;
     }
+    function toSecond(value) {
+        return value / 1000 + 's';
+    }
+    const startTime = Date.now();
+    console.log('DOM loaded at', startTime);
+    function logTimeNow(label, index) {
+        const time = Date.now();
+        console.log(label, index, 'at', time, 'delta', toSecond(time - startTime));
+    }
+    function fullyRenderedImage(index) {
+        function rendered() {
+            //Render complete
+            logTimeNow('fully rendered', index);
+        }
+        function startRender() {
+            //Rendering start
+            requestAnimationFrame(rendered);
+        }
+        function loaded() {
+            requestAnimationFrame(startRender);
+        }
+        loaded();
+    }
     function init() {
         const hl = configureHashlink();
         const hashlinkElements = document.querySelectorAll('.js-hashlink');
         console.log('found hashlink elements', hashlinkElements);
-        function verifyAndDisplay(hashlinkElement) {
+        function verifyAndDisplay(hashlinkElement, index) {
             var _a;
             return __awaiter(this, void 0, void 0, function* () {
+                hashlinkElement.onload = fullyRenderedImage.bind(null, index);
                 const hashlink = hashlinkElement.src;
+                logTimeNow('start processing image', index);
                 const decodedHashlink = yield hl.decode({ hashlink });
                 if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
                     throw new Error('unparseable image, no url provided as meta data');
@@ -9859,11 +9884,13 @@
                 if (!verified) {
                     throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
                 }
+                logTimeNow('verified image', index);
                 console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
                 hashlinkElement.src = sourceUrl;
+                logTimeNow('updated image url', index);
             });
         }
-        hashlinkElements.forEach(hashlinkElement => verifyAndDisplay(hashlinkElement));
+        hashlinkElements.forEach((hashlinkElement, i) => verifyAndDisplay(hashlinkElement, i));
     }
     init();
 
