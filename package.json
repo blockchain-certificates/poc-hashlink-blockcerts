@@ -6,14 +6,18 @@
   "scripts": {
     "encode:hashlink": "ts-node encode.ts",
     "start:browser": "rollup -c config/rollup.config.js -w",
+    "start:server": "nodemon --watch \"server/**\" --ext \"ts,json\" --exec \"ts-node server/index.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
+    "body-parser": "^1.19.2",
+    "express": "^4.17.3",
     "hashlink": "^0.12.1",
     "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.15",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-polyfill-node": "^0.8.0",
