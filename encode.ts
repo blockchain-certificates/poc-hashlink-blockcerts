@@ -1,3 +1,5 @@
+import getArg from "./utils/getArg";
+
 const { Hashlink } = require('hashlink');
 import * as codecs from './node_modules/hashlink/codecs';
 import fetch from 'node-fetch';
@@ -13,12 +15,16 @@ function configureHashlink (): typeof Hashlink {
 (async function () {
   const hl: typeof Hashlink = configureHashlink();
 
-  const url = 'https://www.blockcerts.org/assets/img/pictures/blockcerts.svg';
+  const url = getArg('url');
+  const type = getArg('type');
+  if (!url || !type) {
+    throw new Error('arguments url and type must be specified');
+  }
   console.log('Creating a hashlink from data located at', url);
   let imageData;
   await fetch(url, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/svg' }
+    headers: { 'Content-Type': `application/${type}` }
   })
     .then(response => response.text())
     .then(data => imageData = data);
@@ -32,14 +38,17 @@ function configureHashlink (): typeof Hashlink {
     }
   });
 
+  console.log('---------- HASHLINK VALUE ----------');
   console.log(hashlink);
 
   const hlData = await hl.decode({ hashlink });
+  console.log('---------- DECODED VALUE ----------');
   console.log(JSON.stringify(hlData, null, 2));
 
   const verified = await hl.verify({
     data: imageData,
     hashlink
   });
+  console.log('---------- VERIFIED ----------');
   console.log(verified);
 })();

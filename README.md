@@ -19,3 +19,10 @@ TODO:
 NOTE:
 The code from Digital Bazaar is not entirely maintained so we would need our own implementation which can be derived from the source repo:
 https://github.com/digitalbazaar/hashlink
+
+# Encode image
+`npm run encode:hashlink -- --url=[image url] --type=[mime type]`
+
+Example URLs:
+https://www.blockcerts.org/assets/img/pictures/blockcerts.svg
+https://www.blockcerts.org/assets/img/pictures/credential.png
