@@ -9937,6 +9937,7 @@
                     throw new Error('unparseable image, no url provided as meta data');
                 }
                 const sourceUrl = decodedHashlink.meta.url[0];
+                hashlinkElement.src = sourceUrl;
                 let imageData;
                 yield fetch(sourceUrl)
                     .then(response => response.text())
@@ -9955,7 +9956,6 @@
                     imageHashlink: hashlink
                 });
                 console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
-                hashlinkElement.src = sourceUrl;
                 logTimeNow({
                     event: LogEvents.UPDATED,
                     imageIndex: index,
