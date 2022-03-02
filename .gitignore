@@ -6,4 +6,4 @@ node_modules/*
 /lib
 test/manual-testing/browser/index-iife.js
 /dist
-/server/logs/times.csv
+/server/logs/

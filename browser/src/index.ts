@@ -2,6 +2,7 @@ import {Hashlink} from 'hashlink';
 import * as codecs from '../../node_modules/hashlink/codecs';
 import {logTimeNow, registerStartTime} from './time';
 import {LogEvents} from '../../bindingContext/events';
+import refreshPage from "./refreshPage";
 
 interface HashlinkModel {
   hashName: string;
@@ -93,6 +94,7 @@ function init () {
   }
 
   hashlinkElements.forEach((hashlinkElement, i) => verifyAndDisplay(hashlinkElement, i));
+  refreshPage();
 }
 
 registerStartTime();
