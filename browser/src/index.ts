@@ -94,7 +94,7 @@ function init () {
   }
 
   hashlinkElements.forEach((hashlinkElement, i) => verifyAndDisplay(hashlinkElement, i));
-  refreshPage();
+  // refreshPage();
 }
 
 registerStartTime();
