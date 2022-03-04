@@ -37,7 +37,7 @@ export class HashlinkVerifier {
     }
     this.hashlinkTable[hashlink] = decodedHashlink;
     const sourceUrl = decodedHashlink.meta.url[0];
-    onHashlinkUrlDecoded(sourceUrl);
+    onHashlinkUrlDecoded && onHashlinkUrlDecoded(sourceUrl);
     return decodedHashlink;
   }
 
