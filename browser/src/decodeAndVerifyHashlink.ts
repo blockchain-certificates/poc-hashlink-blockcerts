@@ -1,4 +1,4 @@
-import { HashlinkVerifier } from "./HashlinkVerifier";
+import { HashlinkVerifier } from "../../hashlink/HashlinkVerifier";
 
 export default async function decodeAndVerifyHashlink (hashlink: string, onHashlinkUrlDecoded: (url: string) => void) {
   const hl = new HashlinkVerifier();
