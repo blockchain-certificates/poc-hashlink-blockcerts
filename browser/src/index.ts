@@ -3,15 +3,7 @@ import * as codecs from '../../node_modules/hashlink/codecs';
 import {logTimeNow, registerStartTime} from './time';
 import {LogEvents} from '../../bindingContext/events';
 import refreshPage from "./refreshPage";
-
-interface HashlinkModel {
-  hashName: string;
-  hashValue: Uint8Array;
-  meta?: {
-    url?: string[];
-    'content-type'?: string;
-  }
-}
+import decodeAndVerifyHashlink from "./decodeAndVerifyHashlink";
 
 function configureHashlink (): typeof Hashlink {
   const hl = new Hashlink();
@@ -57,34 +49,14 @@ function init () {
       imageHashlink: hashlink
     });
 
-    const decodedHashlink = await hl.decode({ hashlink });
-    if (!decodedHashlink.meta && !decodedHashlink.meta.url?.length) {
-      throw new Error('unparseable image, no url provided as meta data');
-    }
-    const sourceUrl = decodedHashlink.meta.url[0];
-    hashlinkElement.src = sourceUrl;
-    let imageData;
-    await fetch(sourceUrl)
-      .then(response => response.text())
-      .then(data => imageData = data);
-
-    const textEncoder = new TextEncoder();
-
-    const verified = await hl.verify({
-      data: textEncoder.encode(imageData), // needs an ArrayBuffer
-      hashlink
-    });
-
-    if (!verified) {
-      throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
-    }
+    await decodeAndVerifyHashlink(hashlink, (sourceUrl) => {
+      hashlinkElement.src = sourceUrl;
+    })
     logTimeNow({
       event: LogEvents.VERIFIED,
       imageIndex: index,
       imageHashlink: hashlink
     });
-
-    console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
 
     logTimeNow({
       event: LogEvents.UPDATED,

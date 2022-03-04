@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build:hashlinkVerifier": "rollup -c config/rollup.config.build.js",
     "encode:hashlink": "ts-node encode.ts",
     "start:browser": "rollup -c config/rollup.config.js -w",
     "start:server": "nodemon --watch \"server/**\" --ext \"ts,json\" --exec \"ts-node server/index.ts\"",

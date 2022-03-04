@@ -9877,6 +9877,88 @@
         LogEvents["RENDERED"] = "rendered";
     })(LogEvents || (LogEvents = {}));
 
+    class HashlinkVerifier {
+        constructor() {
+            this.hashlinkTable = {}; // keep decoded hashlinks in memory
+            this.hl = new Hashlink();
+            this.hl.use(new MultihashSha2256());
+            this.hl.use(new MultihashBlake2b64());
+            this.hl.use(new MultibaseBase58btc());
+        }
+        /**
+         * decode method, abstract wrapper over Hashlink class from digital bazaar hashlink package
+         *
+         * @param {string} hashlink: the hashlink to be decoded. In this instance it expects a url to be specified.
+         * @param {function} onHashlinkUrlDecoded: a callback function called when the source url has been discovered to enable
+         * early manipulation (ie: update image in DOM).
+         */
+        decode(hashlink, onHashlinkUrlDecoded) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function* () {
+                const decodedHashlink = yield this.hl.decode({ hashlink });
+                console.log('hashlink decoded', decodedHashlink);
+                if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
+                    throw new Error('unparseable document, no url provided as meta data');
+                }
+                this.hashlinkTable[hashlink] = decodedHashlink;
+                const sourceUrl = decodedHashlink.meta.url[0];
+                onHashlinkUrlDecoded(sourceUrl);
+                return decodedHashlink;
+            });
+        }
+        /**
+         * verify method, abstract wrapper over Hashlink class from digital bazaar hashlink package
+         *
+         * @param {string} hashlink: the hashlink to be decoded. It will lookup in the previously decoded hashlinks table.
+         * if not found it will decode the hashlink before verification.
+         */
+        verify(hashlink) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const sourceUrl = yield this.getSourceUrlFromHashlink(hashlink);
+                let imageData;
+                yield fetch(sourceUrl)
+                    .then(response => response.text())
+                    .then(data => imageData = data);
+                const textEncoder = new TextEncoder();
+                const verified = yield this.hl.verify({
+                    data: textEncoder.encode(imageData),
+                    hashlink
+                });
+                if (verified) {
+                    console.log(`hashlink ${hashlink} bound to ${sourceUrl} was successfully verified`);
+                }
+                else {
+                    throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
+                }
+                return verified;
+            });
+        }
+        getSourceUrlFromHashlink(hashlink) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let decodedHashlink;
+                if (this.hashlinkTable[hashlink]) {
+                    console.log('found hashlink in table');
+                    decodedHashlink = this.hashlinkTable[hashlink];
+                }
+                else {
+                    decodedHashlink = yield this.decode(hashlink);
+                }
+                return this.getMetaUrl(decodedHashlink);
+            });
+        }
+        getMetaUrl(decodedHashlink) {
+            return decodedHashlink.meta.url[0];
+        }
+    }
+
+    function decodeAndVerifyHashlink(hashlink, onHashlinkUrlDecoded) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hl = new HashlinkVerifier();
+            yield hl.decode(hashlink, onHashlinkUrlDecoded);
+            yield hl.verify(hashlink);
+        });
+    }
+
     function configureHashlink() {
         const hl = new Hashlink();
         hl.use(new MultihashSha2256());
@@ -9903,11 +9985,10 @@
         loaded();
     }
     function init() {
-        const hl = configureHashlink();
+        configureHashlink();
         const hashlinkElements = document.querySelectorAll('.js-hashlink');
         console.log('found hashlink elements', hashlinkElements);
         function verifyAndDisplay(hashlinkElement, index) {
-            var _a;
             return __awaiter(this, void 0, void 0, function* () {
                 const hashlink = hashlinkElement.src;
                 hashlinkElement.onload = fullyRenderedImage.bind(null, index, hashlink);
@@ -9916,30 +9997,14 @@
                     imageIndex: index,
                     imageHashlink: hashlink
                 });
-                const decodedHashlink = yield hl.decode({ hashlink });
-                if (!decodedHashlink.meta && !((_a = decodedHashlink.meta.url) === null || _a === void 0 ? void 0 : _a.length)) {
-                    throw new Error('unparseable image, no url provided as meta data');
-                }
-                const sourceUrl = decodedHashlink.meta.url[0];
-                hashlinkElement.src = sourceUrl;
-                let imageData;
-                yield fetch(sourceUrl)
-                    .then(response => response.text())
-                    .then(data => imageData = data);
-                const textEncoder = new TextEncoder();
-                const verified = yield hl.verify({
-                    data: textEncoder.encode(imageData),
-                    hashlink
+                yield decodeAndVerifyHashlink(hashlink, (sourceUrl) => {
+                    hashlinkElement.src = sourceUrl;
                 });
-                if (!verified) {
-                    throw new Error(`Hashlink ${hashlink} does not match data from url ${sourceUrl}`);
-                }
                 logTimeNow({
                     event: LogEvents.VERIFIED,
                     imageIndex: index,
                     imageHashlink: hashlink
                 });
-                console.log(`hashlink ${hashlink} was successfully verified`, decodedHashlink);
                 logTimeNow({
                     event: LogEvents.UPDATED,
                     imageIndex: index,
