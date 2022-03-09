@@ -24,6 +24,6 @@ export class HashlinkVerifier {
    * @param {string} hashlink: the hashlink to be decoded. It will lookup in the previously decoded hashlinks table.
    * if not found it will decode the hashlink before verification.
    */
-
   async verify (hashlink: string): Promise<boolean> {}
+  async verifyHashlinkTable (): Promise<boolean> {}
 }

@@ -41,6 +41,10 @@ export class HashlinkVerifier {
     return decodedHashlink;
   }
 
+  async verifyHashlinkTable () {
+    return Object.keys(this.hashlinkTable).every(async hashlink => await this.verify(hashlink));
+  }
+
   /**
    * verify method, abstract wrapper over Hashlink class from digital bazaar hashlink package
    *

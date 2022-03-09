@@ -9855,6 +9855,11 @@ class HashlinkVerifier {
             return decodedHashlink;
         });
     }
+    verifyHashlinkTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Object.keys(this.hashlinkTable).every((hashlink) => __awaiter(this, void 0, void 0, function* () { return yield this.verify(hashlink); }));
+        });
+    }
     /**
      * verify method, abstract wrapper over Hashlink class from digital bazaar hashlink package
      *
