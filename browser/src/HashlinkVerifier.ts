@@ -41,8 +41,13 @@ export class HashlinkVerifier {
     return decodedHashlink;
   }
 
-  async verifyHashlinkTable () {
-    return Object.keys(this.hashlinkTable).every(async hashlink => await this.verify(hashlink));
+  async verifyHashlinkTable (): Promise<boolean> {
+    const hashlinks = Object.keys(this.hashlinkTable);
+    for (let i = 0; i < hashlinks.length; i++) {
+      await this.verify(hashlinks[i])
+        .catch(error => console.log('caught an hashlink exception', error));
+    }
+    return true;
   }
 
   /**
