@@ -11,9 +11,9 @@ TODO:
   - [ ] rendering time
   - [ ] verification time
   - [ ] tampered images  
-- [ ] issue a blockcerts referencing hashlinks
-- [ ] parse `display` property to find hashlinks
-- [ ] update images in DOM
+- [x] issue a blockcerts referencing hashlinks
+- [x] parse `display` property to find hashlinks
+- [x] update images in DOM
 
 
 NOTE:
